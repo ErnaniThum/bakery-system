@@ -1,4 +1,4 @@
-# Ernani's Bakery System
+# Bakery System
 
 Install it and run:
 
