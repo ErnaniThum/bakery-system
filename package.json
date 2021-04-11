@@ -1,6 +1,6 @@
 {
-  "name": "nextjs",
-  "version": "4.0.0",
+  "name": "ernanis-bakery-system",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@material-ui/core": "latest",
@@ -9,12 +9,23 @@
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-redux": "^7.2.3",
+    "redux": "^4.0.5",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
+    "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest",
+    "test": "nyc --reporter=html --reporter=text mocha tests/**/*",
+    "prettier": "prettier -w ."
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
+    "prettier": "^2.2.1"
   }
 }

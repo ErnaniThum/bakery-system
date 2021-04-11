@@ -19,3 +19,9 @@ yarn-error.log*
 
 # swp
 *.swp
+
+# nyc
+coverage
+.nyc_output
+
+.tgz

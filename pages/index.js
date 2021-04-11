@@ -1,158 +1,194 @@
-import React, { useState } from 'react';
-import Container from '@material-ui/core/Container';
-import Box from '@material-ui/core/Box';
-import { DataGrid } from '@material-ui/data-grid';
-import { Button, Modal } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { TextField } from '@material-ui/core';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-const orderColumns = [
-  { field: 'id', headerName: 'Order', width: 90  },
-  { field: 'customerName', headerName: 'First name', width: 400},
-];
-
-const itemColumns = [
-  { field: 'id', headerName: 'Item', width: 90  },
-  { field: 'type', headerName: 'Type', width: 200},
-  { field: 'bread', headerName: 'Bread', width: 200}
-
-];
-
-const useStyles = makeStyles((theme) => ({
+import React, { useState } from "react";
+import {
+  Modal,
+  Grid,
+  Box,
+  Divider,
+  Button,
+  Container,
+  TextField,
+  makeStyles,
+} from "@material-ui/core";
+import CreateOrder from "../src/CreateOrder";
+import Breads from "../src/Breads";
+import Orders from "../src/Orders";
+import OrderResults from "../src/OrderResult";
+import { connect } from "react-redux";
+import { clearOrders, clearBreads, addBread } from "../redux/actions";
+const useStyles = makeStyles(theme => ({
   root: {
     height: 600,
-    minHeight:600,
+    minHeight: 600,
     flexGrow: 1,
     minWidth: 300,
-    transform: 'translateZ(0)',
+    transform: "translateZ(0)",
     // The position fixed scoping doesn't work in IE 11.
     // Disable this demo to preserve the others.
-    '@media all and (-ms-high-contrast: none)': {
-      display: 'none',
+    "@media all and (-ms-high-contrast: none)": {
+      display: "none",
     },
   },
   modal: {
-    display: 'flex',
+    display: "flex",
     padding: theme.spacing(1),
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  order: {
-    width: 1200,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  }
 }));
 
-export default function Index() {
+const Index = props => {
   const classes = useStyles();
-  const rootRef = React.useRef(null);
-  const [openModal, setModalOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [orders, setOrders] = useState([
-    { id: 1, customerName: 'Snow', },
-    { id: 2, customerName: 'Lannister'}
-  ])
-  const [type, setType] = React.useState('pan');
-  
-  const [bread, setBread] = React.useState('sourdough');
-  
-  const [items, setItems] = React.useState([]);
-
-  const handleChangeType = (event) => {
-    setType(event.target.value);
+  const rootRef = React.useRef(this);
+  const [modalStatus, setModalStatus] = useState(false);
+  const [newBreadName, setNewBreadName] = useState("");
+  const openModal = id => {
+    setModalStatus(id);
   };
-  const handleChangeName = (event) => {
-    setName(event.target.value);
-  };
-  const handleChangeBread = (event) => {
-    setBread(event.target.value);
+  const closeModal = () => {
+    setModalStatus(null);
   };
 
-  const addOrder = () => {
-    const newOrders = orders.concat([{id: orders.length + 1, customerName: name}])
-    setOrders(newOrders);
-    setModalOpen(false);
+  const onNewBreadNameChange = event => {
+    setNewBreadName(event.target.value);
+  };
+
+  const onAddBreadClick = () => {
+    props.addBread(newBreadName);
+    setNewBreadName("");
+  };
+
+  let modalComponent = null;
+  if (modalStatus === "createOrder") {
+    modalComponent = <CreateOrder setModalClosed={closeModal} />;
   }
-  const addItem = () => {
-    const newItems = items.concat([{id: items.length + 1, type, bread}])
-    setItems(newItems);
-  }
-  const clearOrders = () => {
-    setOrders([]);
-  }
-  const clearItems = () => {
-    setItems([]);
+  if (modalStatus === "processOrders") {
+    modalComponent = <OrderResults setModalClosed={closeModal} />;
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box my={4}>
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid rows={orders} columns={orderColumns} pageSize={5} checkboxSelection />
-      </div>
-      </Box>
-      <Button variant="contained" color="primary" onClick={() => {setModalOpen(true)}}>Add</Button>
-      <Button variant="contained" color="primary" onClick={clearOrders}>Clear</Button>
-      <Modal
-        disablePortal
-        disableEnforceFocus
-        disableAutoFocus
-        open={openModal}
-        aria-labelledby="server-modal-title"
-        aria-describedby="server-modal-description"
-        className={classes.modal}
-        container={() => rootRef.current}
-      >
-        <div className={classes.order}>
-          <h2 id="server-modal-title">Create Order</h2>
+    <Container>
+      <Grid container direction="row" alignItems="flex-start" spacing={2}>
+        <Grid item xs={12}>
+          <h1>Backery System</h1>
+          <Divider />
+        </Grid>
+        <Box></Box>
+        <Grid item md={6} xs={12}>
+          <Breads />
+          <Box display="flex" justifyItems="center" alignItems="center">
+            <Box paddingRight="20px">
+              <TextField
+                label="Add Bread"
+                placeholder="Bread Name"
+                margin="normal"
+                onChange={onNewBreadNameChange}
+                value={newBreadName}
+              />
+            </Box>
+            <Box paddingRight="10px">
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={onAddBreadClick}
+                disabled={!newBreadName.length}
+              >
+                Add Bread
+              </Button>
+            </Box>
+            <Box>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={props.clearBreads}
+                disabled={!props.breads.length}
+              >
+                Clear Breads
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
 
-          <TextField
-            id="filled-full-width"
-            label="Customer"
-            placeholder="Customer Name"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            variant="filled"
-            onChange={handleChangeName}
-          />
-          
-          <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={type}
-          onChange={handleChangeType}
-          >
-            <MenuItem value={'pan'}>Pan</MenuItem>
-            <MenuItem value={'rounded'}>Rounded</MenuItem>
-          </Select>
-
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={ bread }
-            onChange={handleChangeBread}
-          >
-            <MenuItem value={'wholeGrain'}>Whole Grain</MenuItem>
-            <MenuItem value={'banana'}>Banana</MenuItem>
-            <MenuItem value={'sourdough'}>Sourdough</MenuItem>
-          </Select>
-          <Button variant="contained" color="primary" onClick={addItem}>Add</Button>
-          <Button variant="contained" color="primary" onClick={clearItems}>Clear</Button>
-          <div style={{ height: 300, width: '80%', 'padding-top': 10 }}>
-            <DataGrid rows={items} columns={itemColumns} pageSize={5} checkboxSelection />
-          </div>
-          <Button variant="contained" color="primary" onClick={addOrder}>Place Order</Button>
-        </div>
-      </Modal>
+        <Grid item md={6} xs={12}>
+          <Orders setModalClosed={closeModal} />
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="center"
+        ></Grid>
+        <Grid
+          item
+          md={6}
+          xs={12}
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="center"
+        >
+          <Grid item xs={2} className={classes.buttonGrid}>
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={!props.breads.length}
+              onClick={() => {
+                openModal("createOrder");
+              }}
+            >
+              New Order
+            </Button>
+          </Grid>
+          <Grid item xs={2} className={classes.buttonGrid}>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={props.clearOrders}
+              disabled={!props.orders.length}
+            >
+              Clear Orders
+            </Button>
+          </Grid>
+          <Grid item xs={2} className={classes.buttonGrid}>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => openModal("processOrders")}
+              disabled={!props.orders.length}
+            >
+              Process Orders
+            </Button>
+          </Grid>
+        </Grid>
+      </Grid>
+      {modalComponent ? (
+        <Modal
+          disablePortal
+          disableEnforceFocus
+          disableAutoFocus
+          open={!!modalStatus}
+          aria-labelledby="server-modal-title"
+          aria-describedby="server-modal-description"
+          className={classes.modal}
+          container={() => rootRef.current}
+        >
+          {modalComponent}
+        </Modal>
+      ) : null}
     </Container>
   );
-}
+};
 
+const mapDispatchToProps = dispatch => ({
+  clearOrders: () => dispatch(clearOrders()),
+  clearBreads: () => dispatch(clearBreads()),
+  addBread: breadName => dispatch(addBread(breadName)),
+});
 
+const mapStateToProps = state => ({
+  orders: state.orders,
+  breads: state.breads,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Index);
